@@ -8,6 +8,13 @@ services:
       - .:/app
     ports:
       - "8000:8000"
+    environment:
+      DB_ENGINE: "postgresql"
+      DB_USER: "psql_admin"
+      DB_PASSWORD: "secret123"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_NAME: "fab_db"
     restart: "no"
   
   db:
@@ -16,6 +23,8 @@ services:
       - postgres.env
     volumes:
       - pgdata:/var/lib/postgresql/data
+    expose:
+      - 5432
 
 volumes:
   pgdata:
