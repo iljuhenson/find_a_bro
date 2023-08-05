@@ -6,7 +6,7 @@ from app.models.user import User as UserModel
 class User:
     id: strawberry.ID    
     email: str
-    password: str
+    hashed_password: str
     first_name: str
     last_name: str
     description: str
@@ -18,10 +18,18 @@ class User:
         return cls(
             id=strawberry.ID(str(userModel.id)),
             email=userModel.email, 
-            password=userModel.password,
+            hashed_password=userModel.hashed_password,
             first_name=userModel.first_name, 
             last_name=userModel.last_name,
             description=userModel.description,
             profile_picture_path=userModel.profile_picture_path,
             is_active=userModel.is_active
         )
+
+@strawberry.type
+class AccessToken:
+    token: str
+
+    @classmethod
+    def marshal(cls, access_token: str):
+        return cls(token=access_token)
