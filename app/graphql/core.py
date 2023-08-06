@@ -1,13 +1,14 @@
 from typing import List
 import strawberry
 
-from app.graphql import controllers
+from . import controllers
+from app.auth.middleware import IsAuthenticated
 
 from .schema import User, AccessToken
 
 @strawberry.type
 class Query:
-    users: List[User] = strawberry.field(resolver=controllers.User.get_users)
+    users: List[User] = strawberry.field(resolver=controllers.User.get_users, permission_classes=[IsAuthenticated])
     login: AccessToken = strawberry.field(resolver=controllers.User.login)
 
 

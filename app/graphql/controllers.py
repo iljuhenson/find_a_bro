@@ -21,7 +21,7 @@ class User:
         sess.commit()
         return UserType.marshal(user_db)
 
-    def login(self, email: str, password: str) -> str:
+    def login(self, email: str, password: str) -> AccessTokenType:
         sess = SessionLocal()
         
         user_db = sess.query(UserModel).filter(UserModel.email == email).first()
