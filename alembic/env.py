@@ -7,6 +7,11 @@ from alembic import context
 
 from app.db.database import Base, SQLALCHEMY_DATABASE_URL
 from app.models.user import User
+from app.models.chat import Chat
+from app.models.message import Message
+from app.models.participant import Participant
+from app.models.meeting import Meeting
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -1,5 +1,6 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
+from geoalchemy2.types import Geometry
 
 from app.db.database import Base
 
@@ -17,6 +18,11 @@ class User(Base):
     description = Column(String, nullable=True, default="")
 
     #            There should be a path to default pfp   vvvvvvvvvv
-    profile_picture_path = Column(String, nullable=True, default="") 
+    profile_picture_path = Column(String, nullable=True, default="")
+
+    location = Column(Geometry(geometry_type="POINT"), nullable=True)
+    location_update_date = Column(DateTime, nullable=True)
     
     is_active = Column(Boolean, default=True)
+
+    participant = relationship("Participant", back_populates="user")
