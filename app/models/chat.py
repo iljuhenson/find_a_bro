@@ -1,7 +1,9 @@
+import datetime
+from typing import Optional
+
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 from sqlalchemy.sql import functions
-from geoalchemy2.types import Geography
 
 from app.db.database import Base
 
@@ -9,10 +11,11 @@ from app.db.database import Base
 class Chat(Base):
     __tablename__ = "chats"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
 
-    text = Column(String, nullable=False)
-    date_sent = Column(DateTime, nullable=False, server_default=functions.now())
+    text: Mapped[str]
+    date_sent: Mapped[Optional[datetime.datetime]] = mapped_column(nullable=False, server_default=functions.now())
 
-    meeting_id = Column(ForeignKey("meetings.id"))
-    meeting = relationship("Meeting", back_populates="chat")
+    meeting_id: Mapped[Optional[int]] = mapped_column(ForeignKey("meetings.id"))
+
+    meeting: Mapped[Optional["Meeting"]] = relationship(back_populates="chat")

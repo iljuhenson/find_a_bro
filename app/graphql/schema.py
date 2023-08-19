@@ -27,6 +27,10 @@ class User:
         )
 
 @strawberry.type
+class AuthenticationError:
+    message: str
+
+@strawberry.type
 class AccessToken:
     token: str
 

@@ -16,12 +16,14 @@ def create_access_token(user: UserModel, expires_after_minutes: int = ACCESS_TOK
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-def verify_token(token: str) -> UserModel:
+def verify_token(token: str) -> UserModel | None:
     sess = SessionLocal()
     
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    
-    user_db = sess.query(UserModel).filter(UserModel.email == payload['email'] and UserModel.id == payload['id']).first()
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_db = sess.query(UserModel).filter(UserModel.email == payload['email'] and UserModel.id == payload['id']).first()
+    except:
+        user_db = None
 
     return user_db
         

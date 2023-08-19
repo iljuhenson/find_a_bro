@@ -7,10 +7,12 @@ from alembic import context
 
 from app.db.database import Base, SQLALCHEMY_DATABASE_URL
 from app.models.user import User
-from app.models.chat import Chat
-from app.models.message import Message
 from app.models.participant import Participant
 from app.models.meeting import Meeting
+from app.models.chat import Chat
+from app.models.message import Message
+
+from geoalchemy2 import alembic_helpers
 
 
 # this is the Alembic Config object, which provides
@@ -51,6 +53,11 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+
+        # geoalchemy specific updates
+        include_object=alembic_helpers.include_object,
+        process_revision_directives=alembic_helpers.writer,
+        render_item=alembic_helpers.render_item,
     )
 
     with context.begin_transaction():
@@ -72,7 +79,12 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata,
+
+            # geoalchemy specific updates
+            include_object=alembic_helpers.include_object,
+            process_revision_directives=alembic_helpers.writer,
+            render_item=alembic_helpers.render_item,
         )
 
         with context.begin_transaction():

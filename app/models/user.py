@@ -1,28 +1,33 @@
+from typing import List, Optional
+import datetime
+
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
-from sqlalchemy.orm import relationship
-from geoalchemy2.types import Geometry
+from sqlalchemy.orm import relationship, mapped_column, Mapped
+from geoalchemy2.types import Geography
 
 from app.db.database import Base
+from app.models.participant import Participant
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
     
-    email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    email: Mapped[str] = mapped_column(unique=True, index=True, nullable=False)
+    hashed_password: Mapped[str]
     
-    first_name = Column(String, nullable=False)
-    last_name = Column(String, nullable=False)
-    description = Column(String, nullable=True, default="")
+    first_name: Mapped[str]
+    last_name: Mapped[str]
+    
+    description: Mapped[Optional[str]] = mapped_column(default="")
 
     #            There should be a path to default pfp   vvvvvvvvvv
-    profile_picture_path = Column(String, nullable=True, default="")
+    profile_picture_path: Mapped[Optional[str]] = mapped_column(default="")
 
-    location = Column(Geometry(geometry_type="POINT"), nullable=True)
-    location_update_date = Column(DateTime, nullable=True)
+    location = mapped_column(Geography(geometry_type="POINT"), nullable=True)
+    location_update_date: Mapped[Optional[datetime.datetime]]
     
-    is_active = Column(Boolean, default=True)
+    is_active : Mapped[bool] = mapped_column(default=True)
 
-    participant = relationship("Participant", back_populates="user")
+    participant: Mapped[List["Participant"]] = relationship(back_populates="user")

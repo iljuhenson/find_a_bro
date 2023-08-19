@@ -1,7 +1,10 @@
+from functools import cached_property
+
 from typing import Any
 from passlib.context import CryptContext
 from strawberry.permission import BasePermission
 from strawberry.types import Info
+from strawberry.fastapi import BaseContext
 
 from app.db.database import SessionLocal
 from app.models.user import User as UserModel
@@ -30,3 +33,21 @@ class IsAuthenticated(BasePermission):
                 return True
 
         return False
+
+
+class Context(BaseContext):
+    @cached_property
+    def user(self) -> UserModel | None:
+        if not self.request:
+            return None
+
+        authorization = self.request.headers.get('Authorization', None)
+        
+        
+        user_db = isinstance(authorization, str) and verify_token( authorization[7:] )
+
+        return user_db or None
+
+def get_context() -> Context:
+    return Context()
+
