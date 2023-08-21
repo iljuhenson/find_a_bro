@@ -17,8 +17,10 @@ class Message(Base):
     text: Mapped[str]
     date_sent: Mapped[datetime.datetime] = Column(DateTime, nullable=False, server_default=functions.now())
 
-    sender_id: Mapped[int] = mapped_column(ForeignKey("participants.id"))
     chat_id: Mapped[int] = mapped_column(ForeignKey("chats.id"))
+    sender_id: Mapped[int] = mapped_column(ForeignKey("participants.id"))
 
-    sender = relationship("Participant", back_populates="messages")
-    chat = relationship("Chat", back_populates="messages")
+    chat: Mapped["Chat"] = relationship(back_populates="messages")
+    sender: Mapped["Participant"] = relationship(back_populates="messages")
+
+

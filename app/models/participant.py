@@ -21,4 +21,4 @@ class Participant(Base):
 
     user: Mapped["User"] = relationship(back_populates="participant")
     meeting: Mapped["Meeting"] = relationship(back_populates="participants")
-    # messages: Mapped[List["Message"]] = relationship(back_populates="sender")
+    messages: Mapped[List["Message"]] = relationship(back_populates="sender")

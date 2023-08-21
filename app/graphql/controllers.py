@@ -41,11 +41,13 @@ class NotificationFeed:
         pass
 
 class Meeting:
-    def get_profiles_within(distance: float, info: Info):
-        if info.context.user is None:
+    def get_profiles_within(distance: int, info: Info):
+        user = info.context.user
+
+        if user is None:
             return AuthenticationErrorType(message="User is not logged in")
 
         sess = SessionLocal()
-        # sess.query(UserModel).filter(UserModel.location.distance_)
+        sess.query(UserModel).filter(geoalchemy2.func.ST_DWithin(UserModel.location, user.location, int(distance)))
 
         return UserType.marshal(userModel=info.context.user)

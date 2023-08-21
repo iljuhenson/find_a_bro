@@ -15,6 +15,12 @@ services:
       DB_HOST: "db"
       DB_PORT: "5432"
       DB_NAME: "fab_db"
+      TEST_DB_ENGINE: "postgresql"
+      TEST_DB_USER: "test"
+      TEST_DB_PASSWORD: "test"
+      TEST_DB_HOST: "testdb"
+      TEST_DB_PORT: "5433"
+      TEST_DB_NAME: "test"
     restart: "no"
   
   db:
@@ -25,8 +31,19 @@ services:
       - pgdata:/var/lib/postgresql/data
     expose:
       - 5432
-    ports:
-      - "6000:5432"
+
+  testdb:
+    image: postgis/postgis:15-3.3-alpine
+    environment: 
+      POSTGRES_PASSWORD: "test"
+      POSTGRES_USER: "test"
+      POSTGRES_DB: "test"
+    volumes:
+      - test_pgdata:/var/lib/postgresql/data
+    expose:
+      - 5433
+    command: -p 5433
 
 volumes:
   pgdata:
+  test_pgdata:
