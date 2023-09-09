@@ -4,7 +4,7 @@ import strawberry
 from strawberry.fastapi import GraphQLRouter
 
 from app.graphql.core import Query, Mutation
-from app.auth.middleware import get_context
+from app.graphql.context import get_context
 
 #from fastapi.security import OAuth2
 

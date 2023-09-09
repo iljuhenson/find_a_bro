@@ -13,20 +13,21 @@ from app.graphql.inputs import Info
 
 
 class User:
-    def get_users(self) -> List[UserType]:
-        users = SessionLocal().query(UserModel).all()
+    def get_users(self, info: Info) -> List[UserType]:
+        sess = next(info.context.get_db())
+        users = sess.query(UserModel).all()
         return list(map(lambda user: UserType.marshal(user), users))
         
-    def create_user(self, user: UserSignUpInput) -> UserType:
-        sess = SessionLocal()
+    def create_user(self, user: UserSignUpInput, info: Info) -> UserType:
+        sess = next(info.context.get_db())
         user_db = UserModel(email=user.email, hashed_password=get_password_hash(user.password), first_name=user.first_name, last_name=user.last_name)
         sess.add(user_db)
         sess.commit()
         return UserType.marshal(user_db)
 
-    def login(self, email: str, password: str) -> AccessTokenType:
-        sess = SessionLocal()
-        
+    def login(self, email: str, password: str, info: Info) -> AccessTokenType:
+        sess = next(info.context.get_db())
+
         user_db = sess.query(UserModel).filter(UserModel.email == email).first()
         if not user_db:
             raise Exception("User doesn't exist")
@@ -46,8 +47,10 @@ class Meeting:
 
         if user is None:
             return AuthenticationErrorType(message="User is not logged in")
+        # print("I'm in get profiles within")
 
-        sess = SessionLocal()
-        sess.query(UserModel).filter(geoalchemy2.func.ST_DWithin(UserModel.location, user.location, int(distance)))
+        sess = next(info.context.get_db())
+        # print(sess)
+        sess.query(UserModel).filter(geoalchemy2.functions.ST_DWithin(UserModel.location, user.location, int(distance)))
 
         return UserType.marshal(userModel=info.context.user)

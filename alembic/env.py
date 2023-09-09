@@ -6,11 +6,13 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.db.database import Base, SQLALCHEMY_DATABASE_URL
+from app.tests import db as test_db
 from app.models.user import User
 from app.models.participant import Participant
 from app.models.meeting import Meeting
 from app.models.chat import Chat
 from app.models.message import Message
+
 
 from geoalchemy2 import alembic_helpers
 
@@ -35,6 +37,8 @@ target_metadata = Base.metadata
 # ... etc.
 if config.get_main_option("is_testing", "False") == "False":
     config.set_main_option('sqlalchemy.url', SQLALCHEMY_DATABASE_URL)
+else:
+    config.set_main_option('sqlalchemy.url', test_db.SQLALCHEMY_TEST_DATABASE_URL)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
