@@ -6,7 +6,7 @@ import geoalchemy2
 from app.auth.middleware import verify_password, get_password_hash
 from app.db.database import SessionLocal
 from app.models.user import User as UserModel
-from app.graphql.schema import User as UserType, AccessToken as AccessTokenType, AuthenticationError as AuthenticationErrorType
+from app.graphql.schema import User as UserType, AccessToken as AccessTokenType, AuthenticationError as AuthenticationErrorType, UserList as UserListType
 from app.graphql.inputs import UserSignUpInput
 from app.auth.jwt import create_access_token
 from app.graphql.inputs import Info
@@ -51,6 +51,8 @@ class Meeting:
 
         sess = next(info.context.get_db())
         # print(sess)
-        sess.query(UserModel).filter(geoalchemy2.functions.ST_DWithin(UserModel.location, user.location, int(distance)))
+        users_within_db = sess.query(UserModel).filter(geoalchemy2.functions.ST_DWithin(UserModel.location, user.location, int(distance) * 1000))
+        users_within = [UserType.marshal(userModel=user) for user in list(users_within_db)]
 
-        return UserType.marshal(userModel=info.context.user)
+        user_list = UserListType(users=users_within)
+        return user_list

@@ -6,13 +6,13 @@ from . import controllers
 from app.auth.middleware import IsAuthenticated
 
 
-from .schema import User, AccessToken, AuthenticationError
+from .schema import User, AccessToken, AuthenticationError, UserList
 
 @strawberry.type
 class Query:
     users: List[User] = strawberry.field(resolver=controllers.User.get_users, permission_classes=[IsAuthenticated])
     login: AccessToken = strawberry.field(resolver=controllers.User.login)
-    get_profiles_within: _Union[User, AuthenticationError] = strawberry.field(resolver=controllers.Meeting.get_profiles_within)
+    get_profiles_within: _Union[UserList, AuthenticationError] = strawberry.field(resolver=controllers.Meeting.get_profiles_within)
 
 
 @strawberry.type

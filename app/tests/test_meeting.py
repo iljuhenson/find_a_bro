@@ -1,27 +1,19 @@
 import os
 import datetime
-from unittest.mock import patch
 
 from starlette.requests import Request
 from starlette.datastructures import Headers
-from fastapi.testclient import TestClient
 from alembic.config import Config
 import alembic
 from geoalchemy2.shape import from_shape
 from shapely import Point
-from sqlalchemy.orm import close_all_sessions
-from sqlalchemy.orm import sessionmaker
-import requests
 import pytest
-import uvicorn
 from app.main import schema
 
-from app.tests import db
-from app.db import database
 from app.db.database import Base
+from app.tests import db
 from app.models.user import User as UserModel
 from app.auth import middleware
-from app.main import app
 
 
 # Needs change probably
@@ -33,10 +25,10 @@ from app.auth.jwt import verify_token
 
 locations = [
     #            lat                  lon
-    Point(52.2256918356944,   20.980238913180077),
-    Point(52.224692883909185, 20.97908878247836),
-    Point(52.17305001104562,  21.110263810842298),
-    Point(52.17079704474586,  20.99288177385461),
+    Point(50.672838, 21.047246),
+    Point(50.673246, 21.046475),
+    Point(50.658320, 21.024380),
+    Point(50.657649, 21.026232),
 ]
 
 
@@ -73,16 +65,15 @@ class TestMeeting():
         for c in Base.registry._class_registry.values():
             if hasattr(c, '__tablename__'):
                 self.test_sess.query(c).delete()
-                print(f"class: {c}")
+                # print(f"class: {c}")
         self.password : str = "secret_pass"
-        # self.test_sess = db.TestSessionLocal()
 
         self.main_user = UserModel(
             email = "mail@test.com",
             hashed_password = middleware.get_password_hash(self.password),
             first_name = "Tester",
-            last_name = "Smith",      # 52.2256918356944,   20.980238913180077
-            location = from_shape(Point(52.2256918356944,   20.980238913180077)),
+            last_name = "Smith",
+            location = from_shape(Point(50.672784, 21.046689)),
             location_update_date = datetime.datetime.utcnow(),
         )
         
@@ -92,13 +83,8 @@ class TestMeeting():
 
     def test_seeking_people_around(self):
         users = []
-        # print(res)
-        # print("im in test")
-        # self.test_sess.add(self.main_user)
-        # print("I added to session")
+        
         for i in range(len(locations)):
-            # print("while location loop")
-
             temp = UserModel(
                 email = f"mail{i}@test.com",
                 hashed_password = middleware.get_password_hash(self.password),
@@ -110,14 +96,18 @@ class TestMeeting():
             
             users.append(temp)
             self.test_sess.add(temp)
+        
         try:
             self.test_sess.commit()
-            print(self.test_sess.query(UserModel).all())
+            # print(self.test_sess.query(UserModel).all())
             testing_query = '''query GetProfilesAdminovich {
                             getProfilesWithin(distance: 2) {
-                                ... on User {
-                                id
-                                email
+                                ... on UserList {
+                                __typename
+                                    users {
+                                        id
+                                        email
+                                    }
                                 }
                                 ... on AuthenticationError {
                                 __typename
@@ -128,12 +118,11 @@ class TestMeeting():
                 login(email: "%s", password: "%s") {
                     token
                 }
-            }''' % (self.main_user.email, self.password) #  ("admin@admin.com", "pass.123") 
+            }''' % (self.main_user.email, self.password)
 
             jwt_token_response = schema.execute_sync(query=jwt_querry, context_value=self.custom_context)
             graphql_link = "/graphql"
             
-            print(jwt_token_response)
             jwt_token = jwt_token_response.data['login']['token']
 
             headers={"Authorization" : f"Bearer {jwt_token}"}
@@ -144,11 +133,11 @@ class TestMeeting():
 
             self.custom_context.request = r 
             response = schema.execute_sync(query=testing_query, context_value=self.custom_context)
-            # response = self.client.post(graphql_link, json={'query': testing_query}, headers={"Authentication" : f"Bearer {jwt_token}"})
-            print(response)
+            
             response_body = response.data
-            print(response_body)
-            # print("query end")
+            
+            assert len(response_body['getProfilesWithin']['users']) == 3
+
         except:
             self.test_sess.rollback()
             raise
@@ -157,13 +146,11 @@ class TestMeeting():
     
     def teardown_class(self):
         print("Deleting data")
-        # # self.test_sess.rollback()
         for c in Base.registry._class_registry.values():
             if hasattr(c, '__tablename__'):
                 self.test_sess.query(c).delete()
-                print(f"class: {c}")
+                # print(f"class: {c}")
         
-        # self.test_sess.commit()
         
         print("Data deleted")
-        # self.test_sess.close()
+        

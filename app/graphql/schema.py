@@ -1,6 +1,7 @@
 import typing
 import strawberry
 from app.models.user import User as UserModel
+from typing import List
 
 @strawberry.type
 class User:
@@ -37,3 +38,7 @@ class AccessToken:
     @classmethod
     def marshal(cls, access_token: str):
         return cls(token=access_token)
+
+@strawberry.type
+class UserList:
+    users: List[User]
