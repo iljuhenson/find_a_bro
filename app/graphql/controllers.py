@@ -6,10 +6,9 @@ import geoalchemy2
 from app.auth.middleware import verify_password, get_password_hash
 from app.db.database import SessionLocal
 from app.models.user import User as UserModel
-from app.graphql.schema import User as UserType, AccessToken as AccessTokenType, AuthenticationError as AuthenticationErrorType, UserList as UserListType
+from app.graphql.schema import User as UserType, AccessToken as AccessTokenType, AuthenticationError as AuthenticationErrorType, UserList as UserListType, Info
 from app.graphql.inputs import UserSignUpInput
 from app.auth.jwt import create_access_token
-from app.graphql.inputs import Info
 
 
 class User:
