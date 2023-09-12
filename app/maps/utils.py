@@ -20,17 +20,35 @@ def find_cafes_within(lat, lon, radius):
 
     return overpass_result["elements"]
 
+def find_pedestrian_roads_within(lat, lon, radius):
+    overpass_query = '''
+        [out:json][timeout:25];
+        (
+        way(around:%s, %s, %s)["highway"="footway"];
+        way(around:%s, %s, %s)["highway"="path"];
+        way(around:%s, %s, %s)["highway"="pedestrian"];
+        );
+        out body;
+        >;
+        out skel qt;
+    ''' % (float(radius), lat, lon, float(radius), lat, lon, float(radius), lat, lon)
+
+    overpass_result = Overpass.query(overpass_query)
+
+    return overpass_result['elements']
+
 def get_meeting_location(lat, lon) -> dict:
-    cafe = get_nearest_caffe_or_none(lat, lon)
+    cafe_list = find_cafes_within(lat, lon, 200)
+    nearest_cafe = get_nearest_cafe_or_none(lat, lon, cafe_list)
     
-    if cafe is not None:
+    if nearest_cafe is not None:
         return cafe
     
-
+    fallback_meeting_place = find_pedestrian_roads_within(lat, lon, 200)
 
     return {} 
 
-def get_nearest_caffe_or_none(lat, lon, cafe_list) -> dict | None:    
+def get_nearest_cafe_or_none(lat, lon, cafe_list) -> dict | None:    
     if len(cafe_list) == 0:
         return None
 
