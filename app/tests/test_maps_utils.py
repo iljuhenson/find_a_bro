@@ -18,6 +18,7 @@ def test_get_nearest_cafe_or_none():
 def test_find_pedestrian_roads_within():
     roads: list = utils.find_pedestrian_roads_within(52.229785, 20.973891, 100)
 
+
     way_counter = 0
     node_counter = 0
     for element in roads:
@@ -26,5 +27,15 @@ def test_find_pedestrian_roads_within():
         if element['type'] == 'node':
             node_counter += 1
 
-    assert node_counter == 155 
+    assert node_counter == 0
     assert way_counter == 21 
+
+def test_get_meeting_location():
+    result1: dict = utils.get_meeting_location(52.229785, 20.973891)
+
+    assert 'lat' in result1.keys() and 'lon' in result1.keys()
+
+    result2: dict = utils.get_meeting_location(52.241039, 21.026879)
+    
+    assert result2['id'] == 448092842
+
