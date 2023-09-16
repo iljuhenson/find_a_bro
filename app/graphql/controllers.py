@@ -7,7 +7,7 @@ from app.auth.middleware import verify_password, get_password_hash
 from app.db.database import SessionLocal
 from app.models.user import User as UserModel
 from app.graphql.schema import User as UserType, AccessToken as AccessTokenType, AuthenticationError as AuthenticationErrorType, UserList as UserListType, Info
-from app.graphql.inputs import UserSignUpInput
+from app.graphql.inputs import UserSignUpInput, UserInput
 from app.auth.jwt import create_access_token
 
 
@@ -55,3 +55,13 @@ class Meeting:
 
         user_list = UserListType(users=users_within)
         return user_list
+
+    def organize_meeting(target_user: UserInput, info: Info):
+        user = info.context.user
+
+        if user is None:
+            return AuthenticationErrorType(message="User is not logged in")
+
+        sess = next(info.context.get_db())
+
+        sess.get(UserModel, target_user.id)

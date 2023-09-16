@@ -11,4 +11,8 @@ class UserSignUpInput:
     first_name: str
     last_name: str
 
+@strawberry.input
+class UserInput:
+    id: strawberry.ID
+
 Info = _Info[Context, RootValueType]

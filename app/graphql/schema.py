@@ -42,3 +42,8 @@ class AccessToken:
 @strawberry.type
 class UserList:
     users: List[User]
+
+
+@strawberry.type
+class TargetMeetingUserError:
+    message: str

@@ -15,6 +15,7 @@ class Participant(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
     
     route = mapped_column(Geography(geometry_type="LINESTRING"), nullable=True)
+    has_agreed: Mapped[bool] = mapped_column(default=False)
     
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     meeting_id: Mapped[int] = mapped_column(ForeignKey("meetings.id"))
